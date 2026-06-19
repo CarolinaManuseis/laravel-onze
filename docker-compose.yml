@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-    # image project
+    # app (Laravel)
     app:
         build:
             context: .
@@ -11,6 +11,7 @@ services:
         volumes:
             - ./:/var/www
         depends_on:
+            - db
             - redis
         networks:
             - laravel
@@ -24,10 +25,12 @@ services:
         volumes:
             - ./:/var/www
             - ./docker/nginx/:/etc/nginx/conf.d/
+        depends_on:
+            - app
         networks:
             - laravel
 
-    # db mysql
+    # mysql
     db:
         image: mysql:8.0
         platform: linux/x86_64
@@ -44,7 +47,7 @@ services:
         networks:
             - laravel
 
-    # PHPMyAdmin
+    # phpmyadmin
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
         platform: linux/x86_64
@@ -55,12 +58,15 @@ services:
             PMA_HOST: db
             PMA_PORT: 3306
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+        depends_on:
+            - db
         networks:
             - laravel
 
     # redis
     redis:
         image: redis:latest
+        restart: unless-stopped
         networks:
             - laravel
 

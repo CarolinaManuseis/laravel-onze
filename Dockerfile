@@ -32,6 +32,8 @@ RUN mkdir -p /home/$user/.composer && \
 RUN pecl install -o -f redis \
     &&  rm -rf /tmp/pear \
     &&  docker-php-ext-enable redis
+    # Fix PHP-FPM listen for Docker
+RUN sed -i 's/;listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /usr/local/etc/php-fpm.d/www.conf
 
 # Set working directory
 WORKDIR /var/www
